@@ -1,8 +1,10 @@
-#In diesem Artikel wird in Kürze erklärt wie man ein MySQL Dump in 
+= MySQL 2 SQLite transformieren =
+
+
+In diesem Artikel wird in Kürze erklärt wie man ein MySQL Dump in 
 eine SQLite Datenbank transformiert. Dies ist ein häufiger Fall 
 beim Programmieren von Android Anwendungen.
 
-= MySQL 2 SQLite transformieren =
 
 Die Datenbank von OpenThesaurus liegt im MySQL Format vor, diese muss
 in die SQLite Datenbank portiert werden. Hierfür verwenden wir das
