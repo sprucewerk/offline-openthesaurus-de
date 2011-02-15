@@ -12,7 +12,7 @@ unten stehende Skript.
 
 
 {{{
-  #!/bin/sh
+   #!/bin/sh
   if [ "x$1" = "x" ]; then
      echo "Usage: $0 <dbname>"
      exit
@@ -27,7 +27,7 @@ unten stehende Skript.
      done
      rm $1.db
   fi
-  cat $1 |
+  mysqldump -u root -p --skip-opt --compatible=ansi $1 |
   grep -v ' KEY "' |
   grep -v ' UNIQUE KEY "' |
   grep -v ' PRIMARY KEY ' |
@@ -39,6 +39,8 @@ unten stehende Skript.
   sed 's/ character set [^ ]* / /gi' |
   sed 's/ enum([^)]*) / varchar(255) /gi' |
   sed 's/ on update [^,]*//gi' |
+  sed 's/\\r\\n/\\n/g'|
+  sed 's/\\"/"/g'|
   perl -e 'local $/;$_=<>;s/,\n\)/\n\)/gs;print "begin;\n";print;print "commit;\n"' |
   perl -pe '
   if (/^(INSERT.+?)\(/) {
@@ -52,17 +54,10 @@ unten stehende Skript.
   ERRORS=`cat $1.err | wc -l`
   if [ "$ERRORS" == "0" ]; then
      echo "Conversion completed without error. Output file: $1.db"
-     rm $1.sql
-     rm $1.err
   else
      echo "There were errors during conversion.  Please review $1.err and $1.sql for details."
   fi
 }}}
 
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Die Zeile {{{mysqldump -u root -p --skip-opt --compatible=ansi $1 |}}} passt man an die eigene Datenbank an. Die Ausführung sieht anschließend 
+folgendermaßen aus : "./mysql2sqlite database_name".
