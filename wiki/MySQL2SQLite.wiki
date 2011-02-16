@@ -9,7 +9,7 @@ beim Programmieren von Android Anwendungen.
 
 Die Datenbank von OpenThesaurus liegt im MySQL Format vor, diese muss
 in die SQLite Datenbank portiert werden. Hierfür verwenden wir das
-unten stehende Skript. 
+unten stehende Skript. Das original Skript ist auf folgender Seite zu finden http://www.sqlite.org/cvstrac/wiki?p=ConverterTools
 
 
 {{{
