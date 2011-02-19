@@ -38,7 +38,6 @@ public class Main extends Activity {
 	private ListView listView;
 	
 	
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +54,8 @@ public class Main extends Activity {
 		
 		
 		progressDialog.show();
+
+		
 		
 		//start database operations in a background thread
         new Thread(new Runnable() {
@@ -64,8 +65,7 @@ public class Main extends Activity {
             	progressDialog.dismiss();
             }
         }).start();		
-		
-        
+
         initUIElements();
         
     }
@@ -201,6 +201,8 @@ public class Main extends Activity {
 					"korrigieren oder neue Synonyme einfügen. Die Suchfunktion zeigt alle " +
 					"Bedeutungen, in denen ein Wort vorkommt (z.B. roh -> roh, ungekocht " +
 					"und einen anderen Eintrag für roh, rau, grob, unsanft). \n\n" +
+					"Offline OpenThesaurus aktualisiert regelmäßig die Datenbank. Die Projekt" +
+					"-Website ist unterfolgender Adresse zu finden:"+
 					"http://code.google.com/p/offline-openthesaurus-de/");
 			builder.setCancelable(false);
 			builder.setPositiveButton("OK",
@@ -250,7 +252,9 @@ public class Main extends Activity {
         
         @Override
         public String convertToString(Cursor cursor) {
-            return cursor.getString(columnIndex);
+        	String clickedItem = cursor.getString(columnIndex);
+        	
+            return clickedItem;
         }
 
         @Override
