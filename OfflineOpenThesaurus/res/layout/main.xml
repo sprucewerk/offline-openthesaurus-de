@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+
+<LinearLayout 
+xmlns:android="http://schemas.android.com/apk/res/android" 
 android:layout_width="fill_parent" 
 android:layout_height="fill_parent" 
 android:id="@+id/LinearLayout01" 
@@ -25,7 +27,7 @@ android:textColor="#6C88A3"
 android:drawableRight="@drawable/logo"
 android:dropDownHeight="180dip"
 android:singleLine="true"
-android:text=""></AutoCompleteTextView>
+android:text="Suchwort"></AutoCompleteTextView>
 
 </TableRow>
 
