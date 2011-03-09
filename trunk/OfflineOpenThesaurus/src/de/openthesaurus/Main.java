@@ -161,9 +161,9 @@ public class Main extends Activity {
 			String[] from = new String[] { "word","category_name" };
 
 			int[] to = new int[] { android.R.id.text1,android.R.id.text2};
-
+			
 			SimpleCursorAdapter listAdapter = new SimpleCursorAdapter(this,
-					android.R.layout.simple_list_item_2, cursor, from, to);
+					R.layout.simple_list_item_2, cursor, from, to);
 
 			 ListView viewList = getListView();
 			 viewList.setAdapter(listAdapter);
