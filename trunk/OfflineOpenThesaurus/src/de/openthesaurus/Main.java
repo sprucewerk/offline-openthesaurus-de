@@ -71,6 +71,14 @@ public class Main extends Activity {
     }
     
     
+    @Override
+    protected void onPause() {
+    	super.onDestroy();
+    	clearSearchword();
+    	
+    }
+    
+    
     private void initUIElements(){
     	
 		autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.AutoCompleteTextView01);
@@ -241,7 +249,14 @@ public class Main extends Activity {
     }
     
     
+    private void clearSearchword(){
+    	this.autoCompleteTextView.setText(null);
+    }
     
+    
+    /*
+     * 
+     */
     private class AutoCompleteCursor extends CursorAdapter {
     	private int columnIndex;
     	private DataBaseHelper myDbHelper;
