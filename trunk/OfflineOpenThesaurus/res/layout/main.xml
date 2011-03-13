@@ -26,8 +26,7 @@ android:hint="Suchwort"
 android:textColor="#6C88A3"
 android:drawableRight="@drawable/logo"
 android:dropDownHeight="180dip"
-android:singleLine="true"
-android:text="Suchwort"></AutoCompleteTextView>
+android:singleLine="true"></AutoCompleteTextView>
 
 </TableRow>
 
