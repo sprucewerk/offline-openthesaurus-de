@@ -27,7 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * -database-in-android-applications/ posted by Juan-Manuel Fluxa.
  * 
  * 
- * @author root
+ * @author v.fichtner
  *
  */
 public class DataBaseHelper extends SQLiteOpenHelper {
@@ -65,9 +65,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 		boolean dbExist = checkDataBase();
 
-		if (dbExist) {
-			// do nothing - database already exist
-		} else {
+		if (!dbExist) {
 			
 			// By calling this method and empty database will be created into
 			// the default system path
