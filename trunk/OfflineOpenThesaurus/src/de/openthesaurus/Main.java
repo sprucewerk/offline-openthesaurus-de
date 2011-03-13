@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCursor;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,7 +57,6 @@ public class Main extends Activity {
 		progressDialog.show();
 
 		
-		
 		//start database operations in a background thread
         new Thread(new Runnable() {
             public void run() {
@@ -87,6 +87,27 @@ public class Main extends Activity {
 			}
         	
 		});
+        
+        //execute search while 
+        autoCompleteTextView.setOnKeyListener(new View.OnKeyListener() {
+			
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				
+				//perform search
+				if(keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN){				
+					
+					((AutoCompleteTextView)v).dismissDropDown();
+					
+					String searchItem = ((AutoCompleteTextView)v).getText().toString();
+					querySynonym(searchItem,dataBaseHelper);
+					
+					return true;
+				}
+				
+				return false;
+			}
+		});
+        
         
         listView = getListView();
         listView.setOnItemClickListener(new OnItemClickListener() {
@@ -150,7 +171,7 @@ public class Main extends Activity {
      */
     public void querySynonym(String item,DataBaseHelper myDbHelper){
     	
-    	if(item.length()<4) return;
+    	if(item.length()<2) return;
     	
     	try {
     		
