@@ -2,6 +2,8 @@ package de.openthesaurus;
 
 import java.io.IOException;
 
+import de.openthesaurus.util.SearchWordCache;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -33,10 +35,12 @@ public class Main extends Activity {
 	private Cursor cursor;
 	private AutoCompleteCursor autoCompleteCursor;
 	
-	
 	private AutoCompleteTextView autoCompleteTextView;
 	private ProgressDialog progressDialog;
 	private ListView listView;
+	
+	private SearchWordCache searchWordCache;
+	private String currentSearchWord;
 	
 	
     @Override
@@ -44,18 +48,9 @@ public class Main extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        dataBaseHelper = new DataBaseHelper(this);
-        autoCompleteCursor = new AutoCompleteCursor(this, dataBaseHelper.getTermCursor(), 0,dataBaseHelper);
-        autoCompleteCursor.setSearchOn(true);
-  
-        progressDialog = new ProgressDialog(this);        
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);        
-        progressDialog.setMessage("Installiere Datenbank...");
-		progressDialog.setCancelable(false);
-		
+        init();
 		
 		progressDialog.show();
-
 		
 		//start database operations in a background thread
         new Thread(new Runnable() {
@@ -67,7 +62,47 @@ public class Main extends Activity {
         }).start();		
 
         initUIElements();
-        
+    }
+
+
+	private void init() {
+		dataBaseHelper = new DataBaseHelper(this);
+        autoCompleteCursor = new AutoCompleteCursor(this, dataBaseHelper.getTermCursor(), 0,dataBaseHelper);
+        autoCompleteCursor.setSearchOn(true);
+  
+        progressDialog = new ProgressDialog(this);        
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);        
+        progressDialog.setMessage("Installiere Datenbank...");
+		progressDialog.setCancelable(false);
+		
+		searchWordCache = new SearchWordCache();
+	}
+    
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	
+    	if(keyCode == KeyEvent.KEYCODE_BACK){
+    		
+    		//perform an old search
+    		String searchWord = searchWordCache.getLastSearchWord();
+    		
+    		if(searchWord != null){
+    				
+    			((AutoCompleteCursor)autoCompleteTextView.getAdapter()).setSearchOn(false);
+				autoCompleteTextView.setText(searchWord);
+				
+				querySynonym(searchWord);
+	
+				((AutoCompleteCursor)autoCompleteTextView.getAdapter()).setSearchOn(true);
+    			
+    			searchWordCache.getLastSearchWord();
+    		}
+    		
+    		return true;
+    	}
+    	
+    	return super.onKeyDown(keyCode, event);
     }
     
     
@@ -91,7 +126,7 @@ public class Main extends Activity {
 				
 				String searchItem = ((SQLiteCursor)arg0.getItemAtPosition(arg2)).getString(0);
 				
-				querySynonym(searchItem,dataBaseHelper);
+				querySynonym(searchItem);
 			}
         	
 		});
@@ -107,7 +142,7 @@ public class Main extends Activity {
 					((AutoCompleteTextView)v).dismissDropDown();
 					
 					String searchItem = ((AutoCompleteTextView)v).getText().toString();
-					querySynonym(searchItem,dataBaseHelper);
+					querySynonym(searchItem);
 					
 					return true;
 				}
@@ -129,13 +164,12 @@ public class Main extends Activity {
 				((AutoCompleteCursor)autoCompleteTextView.getAdapter()).setSearchOn(false);
 				autoCompleteTextView.setText(item);
 				
-				querySynonym(item,dataBaseHelper);
+				querySynonym(item);
 	
 				((AutoCompleteCursor)autoCompleteTextView.getAdapter()).setSearchOn(true);
 			}
-        	
+			
 		});
-
     }
     
 
@@ -177,13 +211,16 @@ public class Main extends Activity {
      * 
      * @param item
      */
-    public void querySynonym(String item,DataBaseHelper myDbHelper){
+    public void querySynonym(String item){
     	
     	if(item.length()<2) return;
     	
+    	searchWordCache.addSearchWord(currentSearchWord);
+    	currentSearchWord = item;
+    	
     	try {
     		
-			cursor = myDbHelper.getSynonymCursor(item);
+			cursor = dataBaseHelper.getSynonymCursor(item);
 			startManagingCursor(cursor);
 
 			// set the db content to the list view
