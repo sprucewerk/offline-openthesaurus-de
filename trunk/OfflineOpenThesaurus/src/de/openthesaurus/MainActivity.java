@@ -1,15 +1,22 @@
 package de.openthesaurus;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import de.openthesaurus.schema.Word;
+import de.openthesaurus.util.DataBaseHelper;
 import de.openthesaurus.util.SearchWordCache;
-
+import de.openthesaurus.util.SectionedAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCursor;
 import android.os.Bundle;
@@ -22,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
@@ -29,7 +37,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.TwoLineListItem;
 
-public class Main extends Activity {
+public class MainActivity extends Activity {
 	
 	private DataBaseHelper dataBaseHelper;
 	private Cursor cursor;
@@ -228,11 +236,68 @@ public class Main extends Activity {
 
 			int[] to = new int[] { android.R.id.text1,android.R.id.text2};
 			
+
 			SimpleCursorAdapter listAdapter = new SimpleCursorAdapter(this,
 					R.layout.simple_list_item_2, cursor, from, to);
+			
+			
+			adapter.clearSections();
 
+			HashMap<String,List<Word>> map = new HashMap<String,List<Word>>();
+			
+			//create
+			while(cursor.moveToNext()){
+
+				String category = cursor.getString(3);
+				
+				Word word = new Word();
+				word.setWord(cursor.getString(1));
+				word.setLevel(cursor.getString(2));
+				
+				
+				if(map.containsKey(category)){
+					map.get(category).add(word);
+				}else{
+					ArrayList<Word> l = new ArrayList<Word>();
+					l.add(word);
+					map.put(category, l);
+				}	
+			}
+			
+
+		    final String[] matrix  = { "_id", "name", "value" };
+		    final String[] columns = { "name", "value" };
+		    final int[]    layouts = { android.R.id.text1, android.R.id.text2 };
+		    
+
+		    int key =0;
+		    for(Map.Entry<String, List<Word>> cItem : map.entrySet()){
+		    	
+		    	MatrixCursor  cursor = new MatrixCursor(matrix);
+		    	
+		    	for(Word wordItem : cItem.getValue()){
+		    		cursor.addRow(new Object[] { key++, wordItem.getWord(),wordItem.getLevel() });
+		    	}
+		    	
+		    	adapter.addSection(cItem.getKey(),
+		    			new SimpleCursorAdapter(this,
+		    					R.layout.simple_list_item_2, cursor, 
+		    					columns, layouts)
+						);
+		    }
+
+//		   
+//			for(Map.Entry<String, List<String>> cItem : map.entrySet()){
+//				adapter.addSection(cItem.getKey(), 
+//						new ArrayAdapter<String>(this,
+//						R.layout.simple_list_item_2, cItem.getValue()));
+//			}
+
+			//adapter.addSection(null, listAdapter);
+			
 			 ListView viewList = getListView();
-			 viewList.setAdapter(listAdapter);
+			 viewList.setAdapter(adapter);
+			 //viewList.setAdapter(listAdapter);
 			 
 
 		} catch (SQLException sqle) {
@@ -289,6 +354,27 @@ public class Main extends Activity {
     private void clearSearchword(){
     	this.autoCompleteTextView.setText(null);
     }
+    
+    
+    
+	SectionedAdapter adapter = new SectionedAdapter() {
+		
+		protected View getHeaderView(String caption, int index,
+				View convertView, ViewGroup parent) {
+			TextView result = (TextView) convertView;
+
+			if (convertView == null) {
+				
+				result = (TextView) getLayoutInflater().inflate(
+						R.layout.header, null);
+			}
+
+			result.setText(caption);
+
+			return (result);
+		}
+	};
+    
     
     
     /*
