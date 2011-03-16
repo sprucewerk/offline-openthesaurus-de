@@ -1,4 +1,4 @@
-package de.openthesaurus;
+package de.openthesaurus.util;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -194,6 +194,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 			retCursor = sqliteDatabase.rawQuery(query, null);	
 
 		}
+		
 		
 		return retCursor;
 	}
