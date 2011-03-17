@@ -348,6 +348,7 @@ public class MainActivity extends Activity {
 
 	private void clearSearchword() {
 		this.autoCompleteTextView.setText(null);
+		adapter.clearSections();
 	}
 
 	SectionedAdapter adapter = new SectionedAdapter() {
