@@ -139,7 +139,7 @@ public class MainActivity extends Activity {
 
 		});
 
-		// execute search while
+		// execute search through key pressing
 		autoCompleteTextView.setOnKeyListener(new View.OnKeyListener() {
 
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -227,9 +227,9 @@ public class MainActivity extends Activity {
 		if (item.length() < 2)
 			return;
 
-		//save the old search word into the cache
+		// save the old search word into the cache
 		searchWordCache.addSearchWord(currentSearchWord);
-		currentSearchWord = item; //current search word
+		currentSearchWord = item; // current search word
 
 		try {
 
@@ -284,16 +284,18 @@ public class MainActivity extends Activity {
 
 			// store the empty category
 			List<Word> lastItem = map.get(null);
-			MatrixCursor cursor = new MatrixCursor(matrix);
+			
+			if (lastItem != null) {
 
-			for (Word lWord : lastItem) {
-				cursor.addRow(new Object[] { key++, lWord.getWord(),
-						lWord.getLevel() });
+				MatrixCursor cursor = new MatrixCursor(matrix);
+				for (Word lWord : lastItem) {
+					cursor.addRow(new Object[] { key++, lWord.getWord(),
+							lWord.getLevel() });
+				}
+
+				adapter.addSection("", new SimpleCursorAdapter(this,
+						R.layout.simple_list_item_2, cursor, columns, layouts));
 			}
-
-			adapter.addSection("", new SimpleCursorAdapter(this,
-					R.layout.simple_list_item_2, cursor, columns, layouts));
-
 			// set adapter to the list view
 			ListView viewList = getListView();
 			viewList.setAdapter(adapter);
@@ -325,8 +327,7 @@ public class MainActivity extends Activity {
 
 			// create an alert dialog with the input text
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("Version: 1.1 \n"
-					+ "DB: 2011-02-05 22:30\n\n"
+			builder.setMessage("Version: 1.1 \n" + "DB: 2011-02-05 22:30\n\n"
 					+ "http://code.google.com/p/offline-openthesaurus-de/");
 			builder.setCancelable(false);
 			builder.setPositiveButton("OK",
