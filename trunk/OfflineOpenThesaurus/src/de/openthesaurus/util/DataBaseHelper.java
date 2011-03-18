@@ -180,18 +180,17 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		
 		if(sqliteDatabase != null){
 			
-			String query ="SELECT DISTINCT t2._id, t2.word, tl.short_level_name, " +
+			final String query ="SELECT DISTINCT t2._id, t2.word, tl.short_level_name, " +
 					"c.category_name FROM term t" 
 			+" LEFT JOIN synset s ON t.synset_id =s._id"
 			+" LEFT JOIN term t2 ON t2.synset_id = s._id"
 			+" LEFT JOIN category_link cl ON t2.synset_id = cl.synset_id"
 			+" LEFT JOIN category c ON c._id = cl.category_id"
 			+" LEFT JOIN term_level tl ON t2.level_id = tl.id"
-			+" WHERE t.word like \""+txt+"\""
+			+" WHERE t.word like ?"
 			+" GROUP BY t2.word";
 			
-			
-			retCursor = sqliteDatabase.rawQuery(query, null);	
+			retCursor = sqliteDatabase.rawQuery(query, new String[]{txt});	
 
 		}
 		
