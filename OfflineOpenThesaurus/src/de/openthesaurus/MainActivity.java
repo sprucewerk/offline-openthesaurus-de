@@ -2,7 +2,6 @@ package de.openthesaurus;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,7 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
@@ -47,6 +46,7 @@ public class MainActivity extends Activity {
 	private AutoCompleteTextView autoCompleteTextView;
 	private ProgressDialog progressDialog;
 	private ListView listView;
+	private View searchView;
 
 	private SearchWordCache searchWordCache;
 	private String currentSearchWord;
@@ -174,14 +174,15 @@ public class MainActivity extends Activity {
 				((AutoCompleteCursor) autoCompleteTextView.getAdapter())
 						.setSearchOn(false);
 				autoCompleteTextView.setText(item);
-
 				querySynonym(item);
-
 				((AutoCompleteCursor) autoCompleteTextView.getAdapter())
 						.setSearchOn(true);
 			}
 
 		});
+
+		searchView = findViewById(R.id.LinearLayoutLoad);
+
 	}
 
 	private void openDatabase(DataBaseHelper myDbHelper) {
@@ -222,11 +223,29 @@ public class MainActivity extends Activity {
 	 * 
 	 * @param item
 	 */
-	public void querySynonym(String item) {
+	public void querySynonym(final String item) {
 
 		if (item.length() < 2)
 			return;
 
+		performSearch(item);
+		
+		autoCompleteTextView.selectAll();
+
+		// It is not necessary to shift the search to an
+		// extra thread and provide a visual feedback.
+		// My tests have shown that the search consumes
+		// more time if I provide a visual feedback.
+
+		// searchView.setVisibility(View.VISIBLE);
+		//
+		// SearchTask searchTask = new SearchTask();
+		// searchTask.setMainActivity(this);
+		// searchTask.execute(item);
+
+	}
+
+	private void performSearch(String item) {
 		// save the old search word into the cache
 		searchWordCache.addSearchWord(currentSearchWord);
 		currentSearchWord = item; // current search word
@@ -240,7 +259,6 @@ public class MainActivity extends Activity {
 
 			HashMap<String, List<Word>> map = new HashMap<String, List<Word>>();
 
-			// create
 			while (cursor.moveToNext()) {
 
 				String category = cursor.getString(3);
@@ -258,48 +276,59 @@ public class MainActivity extends Activity {
 				}
 			}
 
-			final String[] matrix = { "_id", "word", "level" };
-			final String[] columns = { "word", "level" };
-			final int[] layouts = { android.R.id.text1, android.R.id.text2 };
-
-			int key = 0;
-			for (Map.Entry<String, List<Word>> cItem : map.entrySet()) {
-
-				// skip the empty category
-				// it will be stored at the end of the list
-				if (cItem.getKey() == null)
-					continue;
-
-				MatrixCursor cursor = new MatrixCursor(matrix);
-
-				for (Word wordItem : cItem.getValue()) {
-					cursor.addRow(new Object[] { key++, wordItem.getWord(),
-							wordItem.getLevel() });
-				}
-
-				adapter.addSection(cItem.getKey(), new SimpleCursorAdapter(
-						this, R.layout.simple_list_item_2, cursor, columns,
-						layouts));
-			}
-
-			// store the empty category
-			List<Word> lastItem = map.get(null);
-			
-			if (lastItem != null) {
-
-				MatrixCursor cursor = new MatrixCursor(matrix);
-				for (Word lWord : lastItem) {
-					cursor.addRow(new Object[] { key++, lWord.getWord(),
-							lWord.getLevel() });
-				}
-
-				adapter.addSection("", new SimpleCursorAdapter(this,
-						R.layout.simple_list_item_2, cursor, columns, layouts));
-			}
-			// set adapter to the list view
 			ListView viewList = getListView();
-			viewList.setAdapter(adapter);
+			
+			if (map.size() >= 1) {
 
+				final String[] matrix = { "_id", "word", "level" };
+				final String[] columns = { "word", "level" };
+				final int[] layouts = { android.R.id.text1, android.R.id.text2 };
+
+				int key = 0;
+				for (Map.Entry<String, List<Word>> cItem : map.entrySet()) {
+
+					// skip the empty category
+					// it will be stored at the end of the list
+					if (cItem.getKey() == null)
+						continue;
+
+					MatrixCursor cursor = new MatrixCursor(matrix);
+
+					for (Word wordItem : cItem.getValue()) {
+						cursor.addRow(new Object[] { key++, wordItem.getWord(),
+								wordItem.getLevel() });
+					}
+
+					adapter.addSection(cItem.getKey(), new SimpleCursorAdapter(
+							this, R.layout.simple_list_item_2, cursor, columns,
+							layouts));
+				}
+
+				// store the empty category
+				List<Word> lastItem = map.get(null);
+
+				if (lastItem != null) {
+
+					MatrixCursor cursor = new MatrixCursor(matrix);
+					for (Word lWord : lastItem) {
+						cursor.addRow(new Object[] { key++, lWord.getWord(),
+								lWord.getLevel() });
+					}
+
+					adapter.addSection("", new SimpleCursorAdapter(this,
+							R.layout.simple_list_item_2, cursor, columns,
+							layouts));
+				}
+
+			}else{
+
+				adapter.addSection("Keine Treffer", new SimpleCursorAdapter(this,
+						R.layout.simple_list_item_2, null, null,
+						null));
+			}
+			
+			viewList.setAdapter(adapter);
+			
 		} catch (SQLException sqle) {
 
 			throw sqle;
@@ -368,6 +397,110 @@ public class MainActivity extends Activity {
 			return (result);
 		}
 	};
+
+	private class SearchTask extends AsyncTask<String, Void, Void> {
+
+		private Activity mainActivity;
+
+		public void setMainActivity(Activity mainActivity) {
+			this.mainActivity = mainActivity;
+		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+
+			String item = params[0];
+
+			// save the old search word into the cache
+			searchWordCache.addSearchWord(currentSearchWord);
+			currentSearchWord = item; // current search word
+
+			try {
+
+				cursor = dataBaseHelper.getSynonymCursor(item);
+				startManagingCursor(cursor);
+
+			} catch (SQLException sqle) {
+
+				throw sqle;
+
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void v) {
+
+			adapter.clearSections();
+
+			HashMap<String, List<Word>> map = new HashMap<String, List<Word>>();
+
+			// create
+			while (cursor.moveToNext()) {
+
+				String category = cursor.getString(3);
+
+				Word word = new Word();
+				word.setWord(cursor.getString(1));
+				word.setLevel(cursor.getString(2));
+
+				if (map.containsKey(category)) {
+					map.get(category).add(word);
+				} else {
+					ArrayList<Word> l = new ArrayList<Word>();
+					l.add(word);
+					map.put(category, l);
+				}
+			}
+
+			final String[] matrix = { "_id", "word", "level" };
+			final String[] columns = { "word", "level" };
+			final int[] layouts = { android.R.id.text1, android.R.id.text2 };
+
+			int key = 0;
+			for (Map.Entry<String, List<Word>> cItem : map.entrySet()) {
+
+				// skip the empty category
+				// it will be stored at the end of the list
+				if (cItem.getKey() == null)
+					continue;
+
+				MatrixCursor cursor = new MatrixCursor(matrix);
+
+				for (Word wordItem : cItem.getValue()) {
+					cursor.addRow(new Object[] { key++, wordItem.getWord(),
+							wordItem.getLevel() });
+				}
+
+				adapter.addSection(cItem.getKey(), new SimpleCursorAdapter(
+						mainActivity, R.layout.simple_list_item_2, cursor,
+						columns, layouts));
+			}
+
+			// store the empty category
+			List<Word> lastItem = map.get(null);
+
+			if (lastItem != null) {
+
+				MatrixCursor cursor = new MatrixCursor(matrix);
+				for (Word lWord : lastItem) {
+					cursor.addRow(new Object[] { key++, lWord.getWord(),
+							lWord.getLevel() });
+				}
+
+				adapter.addSection("", new SimpleCursorAdapter(mainActivity,
+						R.layout.simple_list_item_2, cursor, columns, layouts));
+			}
+
+			searchView.setVisibility(View.GONE);
+
+			// set adapter to the list view
+			ListView viewList = getListView();
+			viewList.setAdapter(adapter);
+
+		}
+
+	}
 
 	/*
      * 
