@@ -186,7 +186,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 			+" LEFT JOIN term t2 ON t2.synset_id = s._id"
 			+" LEFT JOIN category_link cl ON t2.synset_id = cl.synset_id"
 			+" LEFT JOIN category c ON c._id = cl.category_id"
-			+" LEFT JOIN term_level tl ON t2.level_id = tl.id"
+			+" LEFT JOIN term_level tl ON t2.level_id = tl.id" 
 			+" WHERE t.word like ?"
 			+" GROUP BY t2.word";
 			
