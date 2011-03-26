@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -180,20 +181,19 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		
 		if(sqliteDatabase != null){
 			
-			final String query ="SELECT DISTINCT t2._id, t2.word, tl.short_level_name, " +
-					"c.category_name FROM term t" 
-			+" LEFT JOIN synset s ON t.synset_id =s._id"
-			+" LEFT JOIN term t2 ON t2.synset_id = s._id"
-			+" LEFT JOIN category_link cl ON t2.synset_id = cl.synset_id"
-			+" LEFT JOIN category c ON c._id = cl.category_id"
-			+" LEFT JOIN term_level tl ON t2.level_id = tl.id" 
-			+" WHERE t.word like ?"
-			+" GROUP BY t2.word";
+			final String query ="SELECT DISTINCT t2._id, t2.word, tl.short_level_name, "
+			+ " c.category_name FROM term t"
+			+ " LEFT JOIN synset s ON t.synset_id =s._id"
+			+ " LEFT JOIN term t2 ON t2.synset_id = s._id"
+			+ " LEFT JOIN category_link cl ON t2.synset_id = cl.synset_id"
+			+ " LEFT JOIN category c ON c._id = cl.category_id"
+			+ " LEFT JOIN term_level tl ON t2.level_id = tl.id"
+			+ " WHERE t.word like ?"
+			+ " OR t.normalized_word like ?"
+			+ " GROUP BY t2.word";
 			
-			retCursor = sqliteDatabase.rawQuery(query, new String[]{txt});	
-
+			retCursor = sqliteDatabase.rawQuery(query, new String[]{txt,txt});	
 		}
-		
 		
 		return retCursor;
 	}
@@ -208,15 +208,47 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		Cursor retCursor=null;
 		if(sqliteDatabase != null){
 			
-			String query = "SELECT DISTINCT word,_id FROM term"+ 
-			" WHERE word like \""+txt+"%\""+
-			" GROUP BY word LIMIT 15;";
+			ArrayList<String> orClauses = createOrClauseForUmlauts(txt);
+			
+			StringBuilder query = new StringBuilder();
+			
+			query.append("SELECT DISTINCT word,_id FROM term");
+			query.append(" WHERE word like \""+txt+"%\"");
+			
+			for (String item : orClauses) {
+				query.append(" OR word like \""+item+"%\"");
+			}
+			
+			query.append(" GROUP BY word LIMIT 15;");
 
-			retCursor = sqliteDatabase.rawQuery(query, null);	
+			retCursor = sqliteDatabase.rawQuery(query.toString(), null);	
 		}		
 		
 		return retCursor;
 	}
+	
+	private ArrayList<String> createOrClauseForUmlauts(String txt){
+		
+		ArrayList<String> retList = new ArrayList<String>();
+		
+		if(txt.contains("a")){
+			retList.add(txt.replace("a", "ä"));
+		}
+		if(txt.contains("o")){
+			retList.add(txt.replace("o", "ö"));
+		}
+		if(txt.contains("u")){
+			retList.add(txt.replace("u", "ü"));
+		}
+		if(txt.contains("ss")){
+			retList.add(txt.replace("ss", "ß"));
+		}
+		
+		
+		return retList;
+	}
+	
+
 	
 	public Cursor getTermCursor(){
 		
