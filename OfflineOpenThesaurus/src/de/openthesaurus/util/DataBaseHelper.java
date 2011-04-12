@@ -219,7 +219,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 				query.append(" OR word like \""+item+"%\"");
 			}
 			
-			query.append(" GROUP BY word LIMIT 15;");
+			query.append(" GROUP BY word LIMIT 30;");
 
 			retCursor = sqliteDatabase.rawQuery(query.toString(), null);	
 		}		
