@@ -29,6 +29,11 @@ public class SearchWordCache {
 
 		return storage.remove(lIndex);
 	}
+	
+	public void clear(){
+		storage.clear();
+	}
+	
 
 	public void removeLastSearchWord() {
 		int lIndex = storage.size();
