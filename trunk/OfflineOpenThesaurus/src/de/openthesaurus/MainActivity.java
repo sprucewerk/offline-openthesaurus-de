@@ -1,3 +1,22 @@
+/***
+ Offline OpenThesaurus
+
+ Copyright (C) 2011 Vitali Fichtner
+
+ This program is free software; you can redistribute it and/or modify it 
+ under the terms of the GNU General Public License as published by the 
+ Free Software Foundation; either version 3 of the License, or (at your 
+ option) any later version.
+ 
+ This program is distributed in the hope that it will be useful, but 
+ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for 
+ more details.
+
+ You should have received a copy of the GNU General Public License along 
+ with this program; if not, see <http://www.gnu.org/licenses/>.
+
+ */
 package de.openthesaurus;
 
 import java.io.IOException;
@@ -38,6 +57,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TwoLineListItem;
 
+
 public class MainActivity extends Activity {
 
 	private DataBaseHelper dataBaseHelper;
@@ -47,7 +67,7 @@ public class MainActivity extends Activity {
 	private AutoCompleteTextView autoCompleteTextView;
 	private ProgressDialog progressDialog;
 	private ListView listView;
-	private View searchView;
+	// private View searchView;
 
 	private SearchWordCache searchWordCache;
 	private String currentSearchWord;
@@ -107,10 +127,12 @@ public class MainActivity extends Activity {
 						.setSearchOn(true);
 
 				searchWordCache.getLastSearchWord();
-			}else{
-				//show notification that the cache is empty
-				Toast.makeText(listView.getContext(), 
-						"Keine weiteren Suchwörter im Speicher.", Toast.LENGTH_LONG).show();
+
+			} else {
+				// show notification that the cache is empty
+				Toast.makeText(listView.getContext(),
+						"Keine weiteren Suchwörter im Speicher.",
+						Toast.LENGTH_LONG).show();
 			}
 
 			return true;
@@ -186,7 +208,7 @@ public class MainActivity extends Activity {
 
 		});
 
-		searchView = findViewById(R.id.LinearLayoutLoad);
+		// searchView = findViewById(R.id.LinearLayoutLoad);
 
 	}
 
@@ -234,7 +256,7 @@ public class MainActivity extends Activity {
 			return;
 
 		performSearch(item);
-		
+
 		autoCompleteTextView.selectAll();
 
 		// It is not necessary to shift the search to an
@@ -243,6 +265,11 @@ public class MainActivity extends Activity {
 		// more time if I provide a visual feedback.
 
 		// searchView.setVisibility(View.VISIBLE);
+		//
+		// progressDialog = new ProgressDialog(this);
+		// progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		// progressDialog.setMessage("Suche Läuft...");
+		// progressDialog.setCancelable(false);
 		//
 		// SearchTask searchTask = new SearchTask();
 		// searchTask.setMainActivity(this);
@@ -282,7 +309,7 @@ public class MainActivity extends Activity {
 			}
 
 			ListView viewList = getListView();
-			
+
 			if (map.size() >= 1) {
 
 				final String[] matrix = { "_id", "word", "level" };
@@ -325,15 +352,14 @@ public class MainActivity extends Activity {
 							layouts));
 				}
 
-			}else{
+			} else {
 
-				adapter.addSection("Keine Treffer", new SimpleCursorAdapter(this,
-						R.layout.simple_list_item_2, null, null,
-						null));
+				adapter.addSection("Keine Treffer", new SimpleCursorAdapter(
+						this, R.layout.simple_list_item_2, null, null, null));
 			}
-			
+
 			viewList.setAdapter(adapter);
-			
+
 		} catch (SQLException sqle) {
 
 			throw sqle;
@@ -498,7 +524,9 @@ public class MainActivity extends Activity {
 						R.layout.simple_list_item_2, cursor, columns, layouts));
 			}
 
-			searchView.setVisibility(View.GONE);
+			// searchView.setVisibility(View.GONE);
+
+			progressDialog.dismiss();
 
 			// set adapter to the list view
 			ListView viewList = getListView();
