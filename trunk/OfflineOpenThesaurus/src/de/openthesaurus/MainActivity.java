@@ -35,6 +35,7 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TwoLineListItem;
 
 public class MainActivity extends Activity {
@@ -106,6 +107,10 @@ public class MainActivity extends Activity {
 						.setSearchOn(true);
 
 				searchWordCache.getLastSearchWord();
+			}else{
+				//show notification that the cache is empty
+				Toast.makeText(listView.getContext(), 
+						"Keine weiteren Suchwörter im Speicher.", Toast.LENGTH_LONG).show();
 			}
 
 			return true;
@@ -377,6 +382,7 @@ public class MainActivity extends Activity {
 
 	private void clearSearchword() {
 		this.autoCompleteTextView.setText(null);
+		searchWordCache.clear();
 		adapter.clearSections();
 	}
 
