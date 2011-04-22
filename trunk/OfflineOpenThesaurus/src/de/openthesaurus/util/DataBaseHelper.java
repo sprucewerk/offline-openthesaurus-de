@@ -132,6 +132,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 		return checkDB != null ? true : false;
 	}
+	
+	
+	public boolean isActive(){
+		return checkDataBase();
+	}
+	
 
 	/**
 	 * Copies your database from your local assets-folder to the just created
@@ -244,6 +250,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		
 		return retCursor;
 	}
+	
+	
 	
 	private ArrayList<String> createOrClauseForUmlauts(String txt){
 		
