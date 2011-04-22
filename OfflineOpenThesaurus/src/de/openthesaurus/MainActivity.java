@@ -40,6 +40,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteCursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,9 +58,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TwoLineListItem;
 
-
 public class MainActivity extends Activity {
 
+	private static final String MAIN_ACTIVITY = "MainActivity";
 	private DataBaseHelper dataBaseHelper;
 	private Cursor cursor;
 	private AutoCompleteCursor autoCompleteCursor;
@@ -77,20 +78,44 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		Log.i(MAIN_ACTIVITY, " intent data = " + getIntent().getDataString());
+		final String intentDataSearchItem = getIntent().getDataString();
+
 		init();
 
 		progressDialog.show();
 
 		// start database operations in a background thread
-		new Thread(new Runnable() {
+
+		Thread initDbThread = new Thread(new Runnable() {
 			public void run() {
 				createDatabase(dataBaseHelper);
 				openDatabase(dataBaseHelper);
+
 				progressDialog.dismiss();
 			}
-		}).start();
+			
 
+		});
+
+		initDbThread.start();
 		initUIElements();
+		
+		
+		if (intentDataSearchItem != null) {
+			try {
+				initDbThread.join(); // waiting for end of the database init
+				
+				autoCompleteTextView.setText(intentDataSearchItem);//set the intent data
+				autoCompleteCursor.setSearchOn(false);//disable auto complete
+				querySynonym(intentDataSearchItem);//perform search
+				autoCompleteCursor.setSearchOn(true);//enable auto complete
+			
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 	private void init() {
@@ -130,9 +155,11 @@ public class MainActivity extends Activity {
 
 			} else {
 				// show notification that the cache is empty
-				Toast.makeText(listView.getContext(),
+				Toast toast = Toast.makeText(listView.getContext(),
 						"Keine weiteren Suchwörter im Speicher.",
-						Toast.LENGTH_LONG).show();
+						Toast.LENGTH_SHORT);
+				toast.show();
+				
 			}
 
 			return true;
@@ -576,14 +603,13 @@ public class MainActivity extends Activity {
 		@Override
 		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
 			if (constraint != null && isSearchOn) {
-				return myDbHelper.getAutocompleteCursor(constraint.toString());
+				Cursor cursor = myDbHelper.getAutocompleteCursor(constraint
+						.toString());
+				startManagingCursor(cursor);
+				return cursor;
 			} else {
 				return null;
 			}
-		}
-
-		public Boolean isSearchOn() {
-			return isSearchOn;
 		}
 
 		public void setSearchOn(Boolean isSearchOn) {
