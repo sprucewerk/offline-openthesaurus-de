@@ -26,10 +26,12 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * This class provides the opportunity to use your own sqlite database.
@@ -228,7 +230,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	 * @return Cursor
 	 */
 	public Cursor getAutocompleteCursor(String txt){
-		
+
 		Cursor retCursor=null;
 		if(sqliteDatabase != null){
 			
@@ -237,14 +239,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 			StringBuilder query = new StringBuilder();
 			
 			query.append("SELECT DISTINCT word,_id FROM term");
-			query.append(" WHERE word like \""+txt+"%\"");
+			query.append(" WHERE word like "+DatabaseUtils.sqlEscapeString(txt+"%"));
 			
 			for (String item : orClauses) {
-				query.append(" OR word like \""+item+"%\"");
+				query.append(" OR word like "+DatabaseUtils.sqlEscapeString(item+"%"));
 			}
 			
 			query.append(" GROUP BY word LIMIT 30;");
-
+			
 			retCursor = sqliteDatabase.rawQuery(query.toString(), null);	
 		}		
 		
@@ -274,7 +276,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 		return retList;
 	}
 	
-
 	
 	public Cursor getTermCursor(){
 		
