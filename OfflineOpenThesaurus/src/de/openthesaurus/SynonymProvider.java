@@ -1,7 +1,10 @@
 package de.openthesaurus;
 
+import java.io.IOException;
+
 import de.openthesaurus.util.DataBaseHelper;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -12,6 +15,7 @@ import android.database.SQLException;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 public class SynonymProvider extends ContentProvider {
 
@@ -53,15 +57,18 @@ public class SynonymProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-
+		
 		dataBaseHelper = new DataBaseHelper(getContext());
-
-		try {
+		
+		try
+		{
+			dataBaseHelper.createDataBase();
 			dataBaseHelper.openDataBase(); // init database
-		} catch (SQLException sqle) {
-
-			throw sqle;
 		}
+		catch(Exception ex){
+			Log.e("SynonymProvider", "error to load database");
+			return false;
+		}	
 
 		return true;
 	}
@@ -69,6 +76,8 @@ public class SynonymProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
+		
+		
 		if (!TextUtils.isEmpty(selection)) {
 			throw new IllegalArgumentException("selection not allowed for "
 					+ uri);
@@ -111,12 +120,15 @@ public class SynonymProvider extends ContentProvider {
 			MatrixCursor retCursor = new MatrixCursor(COLUMNS);
 
 			long id = 0;
-			while (cursor.moveToNext()) {
-				String word = cursor.getString(0);
-				String idText = cursor.getString(1);
-				retCursor.addRow(columnValuesOfWord(id++, word, idText));
-			}
+			if(cursor != null){
+			
+				while (cursor.moveToNext()) {
+					String word = cursor.getString(0);
+					String idText = cursor.getString(1);
+					retCursor.addRow(columnValuesOfWord(id++, word, idText));
+				}
 
+			}
 			return retCursor;
 
 		}
