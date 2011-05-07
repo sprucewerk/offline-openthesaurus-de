@@ -94,17 +94,16 @@ public class MainActivity extends Activity {
 
 				progressDialog.dismiss();
 			}
-			
-
 		});
 
 		initDbThread.start();
+		
 		initUIElements();
 		
 		
 		if (intentDataSearchItem != null) {
 			try {
-				initDbThread.join(); // waiting for end of the database init
+				initDbThread.join(); // waiting to end of the database init
 				
 				autoCompleteTextView.setText(intentDataSearchItem);//set the intent data
 				autoCompleteCursor.setSearchOn(false);//disable auto complete
@@ -126,7 +125,7 @@ public class MainActivity extends Activity {
 
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("Installiere Datenbank...");
+		progressDialog.setMessage("Initialisiere Datenbank...");
 		progressDialog.setCancelable(false);
 
 		searchWordCache = new SearchWordCache();

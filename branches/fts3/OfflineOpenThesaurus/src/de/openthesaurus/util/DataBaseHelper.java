@@ -33,6 +33,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+
 /**
  * This class provides the opportunity to use your own sqlite database.
  * It copies the database from the assets folder into the app system database.
@@ -58,7 +59,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	/**
 	 * Magic Hack: the extension of the database
 	 */
-	private static String DB_NAME = "openthesaurus.png";
+	private static String DB_NAME = "openthesaurusfts3.png";
 
 	private SQLiteDatabase sqliteDatabase;
 	private final Context myContext;
@@ -175,9 +176,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 		// Open the database
 		String myPath = DB_PATH + DB_NAME;
+		
 		sqliteDatabase = SQLiteDatabase.openDatabase(myPath, null,
 				SQLiteDatabase.OPEN_READONLY);
-
 	}
 
 	@Override
@@ -232,18 +233,21 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	public Cursor getAutocompleteCursor(String txt){
 
 		Cursor retCursor=null;
+		
 		if(sqliteDatabase != null){
+			
+			Log.d("DataBaseHelper", "getAutocompleteCursor - database != null");
 			
 			ArrayList<String> orClauses = createOrClauseForUmlauts(txt);
 			
 			StringBuilder query = new StringBuilder();
 			
 			query.append("SELECT DISTINCT word,_id FROM term");
-			query.append(" WHERE word like "+DatabaseUtils.sqlEscapeString(txt+"%"));
+			query.append(" WHERE word MATCH "+DatabaseUtils.sqlEscapeString(txt+"*"));
 			
-			for (String item : orClauses) {
-				query.append(" OR word like "+DatabaseUtils.sqlEscapeString(item+"%"));
-			}
+//			for (String item : orClauses) {
+//				query.append(" OR word like "+DatabaseUtils.sqlEscapeString(item+"%"));
+//			}
 			
 			query.append(" GROUP BY word LIMIT 30;");
 			
