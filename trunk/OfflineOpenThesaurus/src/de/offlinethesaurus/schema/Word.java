@@ -1,4 +1,4 @@
-/*
+/***
  Offline OpenThesaurus
 
  Copyright (C) 2011 Vitali Fichtner
@@ -17,50 +17,26 @@
  with this program; if not, see <http://www.gnu.org/licenses/>.
 
  */
-package de.openthesaurus.util;
+package de.offlinethesaurus.schema;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class SearchWordCache {
-
-	private List<String> storage;
-
-	public SearchWordCache() {
-		this.storage = new ArrayList<String>();
+public class Word {
+	
+	private String word;
+	private String level;
+	
+	
+	public String getWord() {
+		return word;
 	}
-
-	public void addSearchWord(String searchWord) {
-		if(searchWord != null){
-			storage.add(searchWord);
-		}
-	}
-
-	public String getLastSearchWord() {
-
-		int lIndex = storage.size();
-
-		if (lIndex == 0) {
-			return null;
-		}
-
-		lIndex -= 1;
-
-		return storage.remove(lIndex);
+	public void setWord(String word) {
+		this.word = word;
 	}
 	
-	public void clear(){
-		storage.clear();
+	public String getLevel() {
+		return level;
 	}
-	
-
-	public void removeLastSearchWord() {
-		int lIndex = storage.size();
-
-		if (lIndex != 0) {
-			lIndex -= 1;
-			storage.remove(lIndex);
-		}
+	public void setLevel(String level) {
+		this.level = level;
 	}
 
 }

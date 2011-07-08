@@ -17,7 +17,7 @@
  with this program; if not, see <http://www.gnu.org/licenses/>.
 
  */
-package de.openthesaurus;
+package de.offlinethesaurus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,10 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.openthesaurus.schema.Word;
-import de.openthesaurus.util.DataBaseHelper;
-import de.openthesaurus.util.SearchWordCache;
-import de.openthesaurus.util.SectionedAdapter;
+import de.offlinethesaurus.schema.Word;
+import de.offlinethesaurus.util.DataBaseHelper;
+import de.offlinethesaurus.util.SearchWordCache;
+import de.offlinethesaurus.util.SectionedAdapter;
+import de.openthesaurus.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

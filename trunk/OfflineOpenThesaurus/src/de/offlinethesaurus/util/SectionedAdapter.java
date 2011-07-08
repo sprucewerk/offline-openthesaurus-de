@@ -16,7 +16,7 @@
 	along with this program.	If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.openthesaurus.util;
+package de.offlinethesaurus.util;
 
 import android.view.View;
 import android.view.ViewGroup;
