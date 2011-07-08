@@ -1,6 +1,6 @@
-package de.openthesaurus;
+package de.offlinethesaurus;
 
-import de.openthesaurus.util.DataBaseHelper;
+import de.offlinethesaurus.util.DataBaseHelper;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
