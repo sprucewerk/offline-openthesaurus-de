@@ -53,7 +53,7 @@ import android.util.Log;
  */
 public class DataBaseHelper extends SQLiteOpenHelper {
 
-	private static String DB_PATH = "/data/data/de.openthesaurus/databases/";
+	private static String DB_PATH = "/data/data/de.offlinethesaurus/databases/";
 	
 	/**
 	 * Magic Hack: the extension of the database
