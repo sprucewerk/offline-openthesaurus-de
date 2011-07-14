@@ -29,7 +29,7 @@ import de.offlinethesaurus.schema.Word;
 import de.offlinethesaurus.util.DataBaseHelper;
 import de.offlinethesaurus.util.SearchWordCache;
 import de.offlinethesaurus.util.SectionedAdapter;
-import de.openthesaurus.R;
+import de.offlinethesaurus.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
