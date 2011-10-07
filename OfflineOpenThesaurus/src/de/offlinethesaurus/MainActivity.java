@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import de.offlinethesaurus.apprater.AppRater;
 import de.offlinethesaurus.schema.Word;
 import de.offlinethesaurus.util.DataBaseHelper;
 import de.offlinethesaurus.util.SearchWordCache;
@@ -116,6 +118,10 @@ public class MainActivity extends Activity {
 				e.printStackTrace();
 			}
 		}
+		
+		
+		AppRater.app_launched(this); 
+		//AppRater.showRateDialog(this,null);
 		
 	}
 
